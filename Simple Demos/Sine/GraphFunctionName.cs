@@ -2,5 +2,5 @@
 // Used for identification
 public enum GraphFunctionName
 {
-    Sine, MultiSine
+    Sine, Sine2D, MultiSine
 }

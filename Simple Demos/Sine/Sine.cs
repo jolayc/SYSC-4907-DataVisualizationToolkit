@@ -11,6 +11,14 @@ static class Sine
         return Mathf.Sin(pi * (x + z + time));
     }
 
+    public static float Sine2DFunction(float x, float z, float time)
+    {
+        float y = Mathf.Sin(pi * (x + time));
+        y += Mathf.Sin(pi * (z + time));
+        y *= 0.5f;
+        return y;
+    }
+
     public static float MultiSineFunction(float x, float z, float time)
     {
         float y = Mathf.Sin(pi * (x + time));

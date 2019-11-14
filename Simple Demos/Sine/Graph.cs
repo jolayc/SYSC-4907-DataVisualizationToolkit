@@ -11,7 +11,10 @@ public class Graph : MonoBehaviour
 {
     public Transform PointPrefab;           // i.e., representation of a point in the graph
     public Transform[] Points;              // collection of points in graph
-    //public GraphFunctionName Function;    // Graphing function being used
+    public GraphFunctionName Function;      // Graphing function being used
+    static GraphFunction[] Functions = {    // Graphing functions available
+        Sine.SineFunction, Sine.Sine2DFunction, Sine.MultiSineFunction
+    };
 
     // Graph labels for each axis
     [Tooltip("X Axis Label")]
@@ -22,11 +25,11 @@ public class Graph : MonoBehaviour
     public string ZLabel;
     [Tooltip("Title of Graph")]
     public string GraphTitle;
-    [Tooltip("Plot Scale")]
-    public float plotScale = 10;
+    //[Tooltip("Plot Scale")]
+    //public float plotScale = 10;
 
     [Range(10, 100)]
-    public int Resolution = 10;
+    public int Resolution = 10;             // Default value is 10 data points
 
     // Start is called before the first frame update
     void Start() { }
@@ -36,18 +39,20 @@ public class Graph : MonoBehaviour
     {
         // Update the y position of each point every frame w.r.t. time
         float time = Time.time;
+        GraphFunction func = Functions[(int)Function];
         for (int i = 0; i < Points.Length; i++)
         {
             Transform currentPoint = Points[i];
             Vector3 position = currentPoint.localPosition;
-            position.y = Sine.SineFunction(position.x, position.z, time);
+            position.y = func(position.x, position.z, time);
             currentPoint.localPosition = position;
         }
     }
 
     void Awake()
     {
-        CalculateXPoints();
+        //CalculateXPoints();
+        CalculateXZPoints();
         //DrawLabels();
     }
 
@@ -70,6 +75,32 @@ public class Graph : MonoBehaviour
             point.localScale = scale;
             point.SetParent(transform, false);
             Points[i] = point;
+        }
+    }
+
+    void CalculateXZPoints()
+    {
+        float step = 2f / Resolution;
+        Vector3 scale = Vector3.one * step;
+        Vector3 position;
+
+        position.y = 0f;
+        position.z = 0f;
+
+        Points = new Transform[Resolution * Resolution];
+
+        for (int i = 0, z = 0; z < Resolution; z++)
+        {
+            position.z = (z + 0.5f) * step - 1f;
+            for (int x = 0; x < Resolution; x++, i++)
+            {
+                Transform point = Instantiate(PointPrefab);
+                position.x = (x + 0.5f) * step - 1f;
+                point.localPosition = position;
+                point.localScale = scale;
+                point.SetParent(transform, false);
+                Points[i] = point;
+            }
         }
     }
 
