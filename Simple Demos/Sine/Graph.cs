@@ -1,15 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Microsoft.MixedReality.Toolkit.UI;
 
-// Animated Graph object
+/*
+ * Class for animated graph object
+ */
 
 public class Graph : MonoBehaviour
 {
-    public Transform PointPrefab;       // i.e., representation of a point in the graph
-    public Transform[] Points;          // collection of points in graph
-    //public GraphFunctionName Function;  // Graphing function being used
+    public Transform PointPrefab;           // i.e., representation of a point in the graph
+    public Transform[] Points;              // collection of points in graph
+    //public GraphFunctionName Function;    // Graphing function being used
 
+    // Graph labels for each axis
     [Tooltip("X Axis Label")]
     public string XLabel;
     //[Tooltip("Y-Axis label")]
@@ -18,6 +22,8 @@ public class Graph : MonoBehaviour
     public string ZLabel;
     [Tooltip("Title of Graph")]
     public string GraphTitle;
+    [Tooltip("Plot Scale")]
+    public float plotScale = 10;
 
     [Range(10, 100)]
     public int Resolution = 10;
@@ -30,23 +36,59 @@ public class Graph : MonoBehaviour
     {
         // Update the y position of each point every frame w.r.t. time
         float time = Time.time;
-
+        for (int i = 0; i < Points.Length; i++)
+        {
+            Transform currentPoint = Points[i];
+            Vector3 position = currentPoint.localPosition;
+            position.y = Sine.SineFunction(position.x, position.z, time);
+            currentPoint.localPosition = position;
+        }
     }
 
     void Awake()
     {
         CalculateXPoints();
-        DrawLabels();
+        //DrawLabels();
     }
 
     void CalculateXPoints()
     {
         float step = 2f / Resolution;
+        Vector3 scale = Vector3.one * step;
+        Vector3 position;
+
+        position.y = 0f;
+        position.z = 0f;
+
+        Points = new Transform[Resolution];
+
+        for (int i = 0; i < Resolution; i++)
+        {
+            Transform point = Instantiate(PointPrefab);
+            position.x = (i + 0.5f) * step - 1f;
+            point.localPosition = position;
+            point.localScale = scale;
+            point.SetParent(transform, false);
+            Points[i] = point;
+        }
     }
 
     // Draw X, Y and Z-axis labels of graph
     void DrawLabels()
     {
         
+    }
+
+    float normalize(float value, float max, float min)
+    {
+        // If values are zero or constant
+        if (System.Math.Abs(max - min) < float.Epsilon)
+        {
+            return value;
+        }
+        else
+        {
+            return (value - min) / (max - min);
+        }
     }
 }
