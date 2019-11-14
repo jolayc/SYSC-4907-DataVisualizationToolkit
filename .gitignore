@@ -1,0 +1,8 @@
+# Don't track contents of these folders
+
+# Don't track metadata
+*.meta
+
+# Don't tracker misc.
+*.DS_Store
+
