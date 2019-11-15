@@ -51,9 +51,7 @@ public class Graph : MonoBehaviour
 
     void Awake()
     {
-        //CalculateXPoints();
         CalculateXZPoints();
-        //DrawLabels();
     }
 
     void CalculateXPoints()
@@ -107,9 +105,13 @@ public class Graph : MonoBehaviour
     // Draw X, Y and Z-axis labels of graph
     void DrawLabels()
     {
-        
+
     }
 
+    /*
+     * Find a way to incorporate this function instead of using the magic
+     * numbers used to calculate the X, Y, Z points
+     */
     float normalize(float value, float max, float min)
     {
         // If values are zero or constant
