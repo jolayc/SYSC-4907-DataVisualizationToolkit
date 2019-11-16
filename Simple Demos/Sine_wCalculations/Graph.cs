@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Microsoft.MixedReality.Toolkit.UI;
 
@@ -63,6 +64,8 @@ public class Graph : MonoBehaviour
         position.y = 0f;
         position.z = 0f;
 
+        float max_x = 0f;
+
         Points = new Transform[Resolution];
 
         for (int i = 0; i < Resolution; i++)
@@ -74,6 +77,12 @@ public class Graph : MonoBehaviour
             point.SetParent(transform, false);
             Points[i] = point;
         }
+    }
+
+    float GetMax(float a, float b)
+    {
+        float max = (a > b) ? max = a : max = b;
+        return max;
     }
 
     void CalculateXZPoints()
