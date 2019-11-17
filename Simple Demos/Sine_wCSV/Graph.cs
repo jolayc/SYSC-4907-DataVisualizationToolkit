@@ -59,15 +59,17 @@ namespace SineWCSV
                 if (Point.position.x >= XMax)
                 {
                     index = 0;
+                    position = Vector3.zero;
+                    Point.localPosition = position;
                     trender.Clear();
                 }
                 else
                 {
                     index++;
+                    position.x = XPoints[index];
+                    position.y = YPoints[index];
+                    Point.localPosition = position;
                 }
-                position.x = XPoints[index];
-                position.y = YPoints[index];
-                Point.localPosition = position;
                 Debug.Log(index);
             }
         }
