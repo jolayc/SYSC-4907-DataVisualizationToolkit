@@ -5,9 +5,9 @@
     * Customizable 2D data point prefab
     * Customizable 3D data point prefab
 * C# Scripts
-    * 2D plotting
-    * 3D plotting
+    * 2D plotting - (in progress)
+    * 3D plotting - mainly for time-dependent data
 * Demos
-    * Sine function in 3D
+    * Multi-dimensional plots using Sine
 
 Work in progress
