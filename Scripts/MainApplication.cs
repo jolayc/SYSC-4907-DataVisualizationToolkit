@@ -17,6 +17,7 @@ namespace TimeSeriesExtension
 
         private void Awake()
         {
+            Debug.Log("Test");
             // Create and empty graph and add it to the scene
             //Instantiate(Graph);
 
@@ -26,7 +27,7 @@ namespace TimeSeriesExtension
 
             List<float> values = parser.GetListFromColumn(1); // Grab values from first column
 
-            LogValues(values);
+            //LogValues(values);
         }
 
         // Update is called once per frame
