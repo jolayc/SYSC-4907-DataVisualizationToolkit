@@ -1,6 +1,9 @@
 ﻿// Enumeration class that holds the names of the available graph function names
 // Used for identification
-public enum GraphFunctionName
+namespace SineDemoWCalculations
 {
-    Sine, MultiSine
+    public enum GraphFunctionName
+    {
+        Sine, Sine2D, MultiSine
+    }
 }
