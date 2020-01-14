@@ -54,7 +54,7 @@ namespace SineWCSV
             Vector3 position;
             position.z = 0f;
 
-            if (Time.frameCount % 30 == 0)
+            if (Time.frameCount % 10 == 0)
             {
                 if (Point.position.x >= XMax)
                 {
