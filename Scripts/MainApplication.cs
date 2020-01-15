@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace TimeSeriesExtension
 {
-    public class ApplicationManager : MonoBehaviour
+    public class MainApplication : MonoBehaviour
     {
-        public GameObject Graph;
+        public TimeSeriesGraph Graph;
         public TextAsset DataFile;
 
         // Start is called before the first frame update
@@ -17,17 +17,22 @@ namespace TimeSeriesExtension
 
         private void Awake()
         {
-            Debug.Log("Test");
             // Create and empty graph and add it to the scene
-            //Instantiate(Graph);
 
             // Parse through CSV
             var csvString = DataFile.ToString(); // Convert CSV to String for easier use
             DataParser parser = new DataParser(csvString);
 
-            List<float> values = parser.GetListFromColumn(1); // Grab values from first column
+            List<float> x_values = parser.GetListFromColumn(0); // Grab values from first column
+            List<float> y_values = parser.GetListFromColumn(1);
+            List<float> z_values = ZValues();
 
             //LogValues(values);
+            Instantiate(Graph);
+            PlotPoint new_point = new PlotPoint(Graph.PointPrefab, x_values, y_values, z_values);
+            //Graph.AddPlotPoint(new_point);
+
+            //Graph.ShowValues();
         }
 
         // Update is called once per frame
@@ -45,6 +50,15 @@ namespace TimeSeriesExtension
             {
                 Debug.Log(value);
             }
+        }
+        private List<float> ZValues()
+        {
+            List<float> values = new List<float>();
+            for (int i = 0; i < 10; i++)
+            {
+                values.Add(0.0f);
+            }
+            return values;
         }
     }
 
