@@ -15,7 +15,7 @@ namespace TimeSeriesExtension
         public string ZAxisName;
 
         // Plot points
-        public List<PlotPoint> PlotPoints;
+        public List<PlotPoint> PlotPoints = new List<PlotPoint>();
 
         // Plot members
         public GameObject AppBar;
@@ -28,7 +28,7 @@ namespace TimeSeriesExtension
         // Start is called before the first frame update
         void Start()
         {
-
+            Instantiate(PointPrefab);
         }
 
         // Update is called once per frame
@@ -39,21 +39,12 @@ namespace TimeSeriesExtension
 
         private void Awake()
         {
-            Instantiate(PointPrefab);
-            PlotPoints = new List<PlotPoint>();
+
         }
 
         public void AddPlotPoint(PlotPoint point)
         {
             PlotPoints.Add(point);
-        }
-
-        public void ShowValues()
-        {
-            foreach(PlotPoint point in PlotPoints)
-            {
-                point.PrintValues();
-            }
         }
     }
 }

@@ -18,21 +18,21 @@ namespace TimeSeriesExtension
         private void Awake()
         {
             // Create and empty graph and add it to the scene
+            Instantiate(Graph);
 
             // Parse through CSV
             var csvString = DataFile.ToString(); // Convert CSV to String for easier use
             DataParser parser = new DataParser(csvString);
 
+            // Create PlotPoint object using data from CSV
             List<float> x_values = parser.GetListFromColumn(0); // Grab values from first column
             List<float> y_values = parser.GetListFromColumn(1);
             List<float> z_values = ZValues();
 
-            //LogValues(values);
-            Instantiate(Graph);
             PlotPoint new_point = new PlotPoint(Graph.PointPrefab, x_values, y_values, z_values);
-            //Graph.AddPlotPoint(new_point);
 
-            //Graph.ShowValues();
+            // Add new PlotPoint to Graph
+            Graph.AddPlotPoint(new_point);
         }
 
         // Update is called once per frame
@@ -51,14 +51,23 @@ namespace TimeSeriesExtension
                 Debug.Log(value);
             }
         }
+
         private List<float> ZValues()
         {
-            List<float> values = new List<float>();
+            List<float> return_list = new List<float>();
             for (int i = 0; i < 10; i++)
             {
-                values.Add(0.0f);
+                return_list.Add(0.0f);
             }
-            return values;
+            return return_list;
+        }
+
+        public void PrintValues(List<float> list, string label)
+        {
+            foreach (var elem in list)
+            {
+                Debug.Log(label + ": " + elem);
+            }
         }
     }
 

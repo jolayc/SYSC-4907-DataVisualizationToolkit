@@ -47,22 +47,4 @@ public class PlotPoint
         YMin = YPoints.Min();
         ZMin = ZPoints.Min();
     }
-
-    public void PrintValues()
-    {
-        foreach(var elem in XPoints)
-        {
-            Debug.Log("x: " + elem);
-        }
-
-        foreach (var elem in YPoints)
-        {
-            Debug.Log("y: " + elem);
-        }
-
-        foreach (var elem in ZPoints)
-        {
-            Debug.Log("z:" + elem);
-        }
-    }
 }
