@@ -4,47 +4,49 @@ using UnityEngine;
 
 namespace TimeSeriesExtension
 {
-    public class TimeSeriesGraph : MonoBehaviour
+    public class TimeSeriesGraph
     {
-        public Transform PointPrefab; // Asset used to represent a single point in the plot
+        public List<PlotPoint> PlotPoints { get; set; }
 
-        // Labels
-        public string PlotTitle;
-        public string XAxisName;
-        public string YAxisName;
-        public string ZAxisName;
+        private float XMax;
+        private float YMax;
+        private float ZMax;
 
-        // Plot points
-        public List<PlotPoint> PlotPoints = new List<PlotPoint>();
+        private float XMin;
+        private float YMin;
+        private float ZMin;
 
-        // Plot members
-        public GameObject AppBar;
-        public GameObject RotationHandle;
-        public GameObject ScaleHandle;
-        public GameObject Text;
-        public Material HandleMaterial;
-        public Material HandleGrabbedMaterial;
-
-        // Start is called before the first frame update
-        void Start()
+        /*
+         * Constructor used when no initial data is provided
+         */ 
+        public TimeSeriesGraph()
         {
-            Instantiate(PointPrefab);
+            PlotPoints = new List<PlotPoint>();
+            //CalculateMaxPoints();
+            //CalculateMinPoints();
         }
 
-        // Update is called once per frame
-        void Update()
+        /*
+         * Constructor used when initial data is provided
+         */ 
+        public TimeSeriesGraph(List<PlotPoint> points)
         {
-            
-        }
-
-        private void Awake()
-        {
-
+            PlotPoints = points;
         }
 
         public void AddPlotPoint(PlotPoint point)
         {
             PlotPoints.Add(point);
+        }
+
+        private void CalculateMaxPoints()
+        {
+            
+        }
+
+        private void CalculateMinPoints()
+        {
+
         }
     }
 }

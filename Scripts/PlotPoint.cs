@@ -10,22 +10,23 @@ using UnityEngine;
 
 public class PlotPoint
 {
-    private Transform Point { get; set; }
-    private List<float> XPoints { get; set; }
-    private List<float> YPoints { get; set; }
-    private List<float> ZPoints { get; set; }
+    public Transform PointPrefab { get; set; } // Asset used to represent a point
 
-    private float XMax;
-    private float XMin;
-    private float YMax;
+    public List<float> XPoints { get; set; }
+    public List<float> YPoints { get; set; }
+    public List<float> ZPoints { get; set; }
 
-    private float YMin;
-    private float ZMax;
-    private float ZMin;
+    public float XMax;
+    public float XMin;
+    public float YMax;
+
+    public float YMin;
+    public float ZMax;
+    public float ZMin;
 
     public PlotPoint(Transform point, List<float> xpoints, List<float> ypoints, List<float> zpoints)
     {
-        Point = point;
+        PointPrefab = point;
         XPoints = xpoints;
         YPoints = ypoints;
         ZPoints = zpoints;
