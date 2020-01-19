@@ -90,34 +90,24 @@ namespace TimeSeriesExtension
             // Grab the corresponding point from graph using given index
             PlotPoint pointFromGraph = Graph.PlotPoints[index];
 
-            // Update position vector
-            position.x = 0.0f;
-            position.y = 0.0f;
-            position.z = 0.0f;
+            int currentIndex = pointFromGraph.currentPointIndex;
 
-            //  Render point with updated position
-            point.localPosition = position;
-        }
-
-        private void UpdatePoint()
-        {
-            Vector3 position;
-
-            var current_point = Points[0];
-
-            if (Index < 10)
+            if (currentIndex < pointFromGraph.XPoints.Count)
             {
-                position.x = Graph.PlotPoints[0].XPoints[Index];
-                position.y = Graph.PlotPoints[0].YPoints[Index];
-                position.z = Graph.PlotPoints[0].ZPoints[Index];
+                // Update position vector
+                position.x = pointFromGraph.XPoints[currentIndex];
+                position.y = pointFromGraph.YPoints[currentIndex];
+                position.z = pointFromGraph.ZPoints[currentIndex];
 
-                current_point.localPosition = position;
+                //  Render point with updated position
+                point.localPosition = position;
 
-                Index++;
+                // Update index
+                pointFromGraph.currentPointIndex++;
             }
             else
             {
-                Index = 0;
+                pointFromGraph.currentPointIndex = 0;
             }
         }
     }
