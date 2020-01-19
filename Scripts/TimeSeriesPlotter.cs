@@ -7,9 +7,10 @@ namespace TimeSeriesExtension
     public class TimeSeriesPlotter : MonoBehaviour
     {
         public Transform PointPrefab;
-        public TextAsset DataFile;
+        public TextAsset DataFile;  // Remove if CSV parsing is handled by an outside source
 
         private TimeSeriesGraph Graph;
+        private List<Transform> Points;
 
         // Labels
         public string PlotTitle;
@@ -22,6 +23,11 @@ namespace TimeSeriesExtension
         public GameObject HandleGrabbedMaterial;
         public GameObject RotationHandle;
         public GameObject ScaleHandle;
+        public TrailRenderer TrailRenderer;
+
+        // Misc.
+        private int Index;
+        //private int pointIndex;
 
         // Start is called before the first frame update
         void Start()
@@ -31,19 +37,37 @@ namespace TimeSeriesExtension
 
         private void Awake()
         {
-            CreateTimeSeriesGraphWithCSV(); // This method will be removed once combined with UI
+            Index = 0;
+            Points = new List<Transform>();
+            //pointIndex = 0;
+            CreateTimeSeriesGraphUsingCSV(); // This method will be removed once combined with UI
 
-            // Initialize point prefab for each point in graph
-            foreach (PlotPoint point in Graph.PlotPoints)
+            Vector3 zero_position = Vector3.zero;
+
+            // Instantiate prefabs for each plot point in Graph
+            for (int i = 0; i < Graph.PlotPoints.Count; i++)
             {
-                Instantiate(point.PointPrefab);
+                Transform point = Instantiate(PointPrefab);
+                point.localPosition = zero_position;
+                Points.Add(point);
+            }
+        }
+
+        void Update()
+        {
+            if (Time.frameCount % 10 == 0)
+            {
+                for (int i = 0; i < Points.Count; i++)
+                {
+                    UpdatePoint(Points[i], i);
+                }
             }
         }
 
         /*
          * Temporary method to use CSV parsing when creating graph
-         */ 
-        private void CreateTimeSeriesGraphWithCSV()
+         */
+        private void CreateTimeSeriesGraphUsingCSV()
         {
             var csvString = DataFile.ToString(); // Convert CSV to String for easier use
             DataParser parser = new DataParser(csvString);
@@ -52,35 +76,48 @@ namespace TimeSeriesExtension
             List<float> x_values = parser.GetListFromColumn(0); // Grab values from first column
             List<float> y_values = parser.GetListFromColumn(1);
             List<float> z_values = parser.GetListFromColumn(2);
-            PlotPoint new_point = new PlotPoint(PointPrefab, x_values, y_values, z_values);
+            PlotPoint new_point = new PlotPoint(x_values, y_values, z_values);
 
             // Create empty Graph object and give it plot points
             Graph = new TimeSeriesGraph();
             Graph.AddPlotPoint(new_point);
         }
 
-        // Update is called once per frame
-        void Update()
+        private void UpdatePoint(Transform point, int index)
         {
+            Vector3 position;
 
+            // Grab the corresponding point from graph using given index
+            PlotPoint pointFromGraph = Graph.PlotPoints[index];
+
+            // Update position vector
+            position.x = 0.0f;
+            position.y = 0.0f;
+            position.z = 0.0f;
+
+            //  Render point with updated position
+            point.localPosition = position;
         }
 
-        ///
-        /* FOR DEBUGGING */
-        //
-        private void LogValues(List<float> values)
+        private void UpdatePoint()
         {
-            foreach (var value in values)
+            Vector3 position;
+
+            var current_point = Points[0];
+
+            if (Index < 10)
             {
-                Debug.Log(value);
+                position.x = Graph.PlotPoints[0].XPoints[Index];
+                position.y = Graph.PlotPoints[0].YPoints[Index];
+                position.z = Graph.PlotPoints[0].ZPoints[Index];
+
+                current_point.localPosition = position;
+
+                Index++;
             }
-        }
-
-        public void PrintValues(List<float> list, string label)
-        {
-            foreach (var elem in list)
+            else
             {
-                Debug.Log(label + ": " + elem);
+                Index = 0;
             }
         }
     }
