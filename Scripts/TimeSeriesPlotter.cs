@@ -1,13 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 
 namespace TimeSeriesExtension
 {
     public class TimeSeriesPlotter : MonoBehaviour
     {
+        public GameObject PointHolder;
         public Transform PointPrefab;
-        public TextAsset DataFile;  // Remove if CSV parsing is handled by an outside source
+        public TextAsset DataFile1;  // Remove if CSV parsing is handled by an outside source
+        public TextAsset DataFile2;
 
         private TimeSeriesGraph Graph;
         private List<Transform> Points;
@@ -19,15 +22,12 @@ namespace TimeSeriesExtension
         public string ZAxisName;
 
         // Resources
-        public GameObject HandleMaterial;
-        public GameObject HandleGrabbedMaterial;
+        public Material HandleMaterial;
+        public Material HandleGrabbedMaterial;
         public GameObject RotationHandle;
         public GameObject ScaleHandle;
         public TrailRenderer TrailRenderer;
-
-        // Misc.
-        private int Index;
-        //private int pointIndex;
+        public float PlotScale;
 
         // Start is called before the first frame update
         void Start()
@@ -37,20 +37,23 @@ namespace TimeSeriesExtension
 
         private void Awake()
         {
-            Index = 0;
+            PlotScale = 10;
             Points = new List<Transform>();
-            //pointIndex = 0;
-            CreateTimeSeriesGraphUsingCSV(); // This method will be removed once combined with UI
+            
 
-            Vector3 zero_position = Vector3.zero;
+            CreateTimeSeriesGraphUsingCSV(); // Replace once combined with UI and CSV parsing components
 
             // Instantiate prefabs for each plot point in Graph
             for (int i = 0; i < Graph.PlotPoints.Count; i++)
             {
                 Transform point = Instantiate(PointPrefab);
-                point.localPosition = zero_position;
+                //point.SetParent(PointHolder.transform);
+                point.localPosition = Vector3.zero;
                 Points.Add(point);
             }
+
+            // Initialize plot manipulation controls
+            //InitializeInteraction();
         }
 
         void Update()
@@ -69,7 +72,7 @@ namespace TimeSeriesExtension
          */
         private void CreateTimeSeriesGraphUsingCSV()
         {
-            var csvString = DataFile.ToString(); // Convert CSV to String for easier use
+            var csvString = DataFile1.ToString(); // Convert CSV to String for easier use
             DataParser parser = new DataParser(csvString);
 
             // Create PlotPoint object using data from CSV
@@ -80,6 +83,17 @@ namespace TimeSeriesExtension
 
             // Create empty Graph object and give it plot points
             Graph = new TimeSeriesGraph();
+            Graph.AddPlotPoint(new_point);
+
+            csvString = DataFile2.ToString();
+            parser = new DataParser(csvString);
+
+            x_values = parser.GetListFromColumn(0);
+            y_values = parser.GetListFromColumn(1);
+            z_values = parser.GetListFromColumn(2);
+            new_point = new PlotPoint(x_values, y_values, z_values);
+
+            // Create empty Graph object and give it plot points
             Graph.AddPlotPoint(new_point);
         }
 
@@ -109,6 +123,28 @@ namespace TimeSeriesExtension
             {
                 pointFromGraph.currentPointIndex = 0;
             }
+        }
+
+        private void InitializeInteraction()
+        {
+            BoxCollider boxCollider = PointHolder.AddComponent<BoxCollider>();
+
+            PointHolder.AddComponent<BoundingBox>();
+            PointHolder.AddComponent<ManipulationHandler>();
+
+            //Scale handle sizes
+            PointHolder.GetComponent<BoundingBox>().ScaleHandleSize = PointHolder.GetComponent<BoundingBox>().ScaleHandleSize * PlotScale;
+            PointHolder.GetComponent<BoundingBox>().RotationHandleSize = PointHolder.GetComponent<BoundingBox>().RotationHandleSize * PlotScale;
+
+
+            //Optional handle prefab Models
+            PointHolder.GetComponent<BoundingBox>().HandleGrabbedMaterial = HandleGrabbedMaterial;
+            PointHolder.GetComponent<BoundingBox>().HandleMaterial = HandleMaterial;
+            PointHolder.GetComponent<BoundingBox>().ScaleHandlePrefab = ScaleHandle;
+            PointHolder.GetComponent<BoundingBox>().RotationHandleSlatePrefab = RotationHandle;
+
+            // Optional appBar
+            // TO-DO
         }
     }
 
