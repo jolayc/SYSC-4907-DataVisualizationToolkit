@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3280152654073243512}
   - component: {fileID: 114133821189041116}
+  - component: {fileID: 5330830262199456264}
   m_Layer: 0
   m_Name: DataPlotter
   m_TagString: Untagged
@@ -43,8 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 266a427daf3e545ac8cd0140ad9471be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PointHolder: {fileID: 0}
   PointPrefab: {fileID: 0}
-  DataFile: {fileID: 0}
+  DataFile1: {fileID: 0}
+  DataFile2: {fileID: 0}
   PlotTitle: 
   XAxisName: 
   YAxisName: 
@@ -54,3 +57,30 @@ MonoBehaviour:
   RotationHandle: {fileID: 0}
   ScaleHandle: {fileID: 0}
   TrailRenderer: {fileID: 0}
+  PlotScale: 0
+--- !u!114 &5330830262199456264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7620601469358491355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266a427daf3e545ac8cd0140ad9471be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PointHolder: {fileID: 0}
+  PointPrefab: {fileID: 0}
+  DataFile1: {fileID: 0}
+  DataFile2: {fileID: 0}
+  PlotTitle: 
+  XAxisName: 
+  YAxisName: 
+  ZAxisName: 
+  HandleMaterial: {fileID: 0}
+  HandleGrabbedMaterial: {fileID: 0}
+  RotationHandle: {fileID: 0}
+  ScaleHandle: {fileID: 0}
+  TrailRenderer: {fileID: 0}
+  PlotScale: 0

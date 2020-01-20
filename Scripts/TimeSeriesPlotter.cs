@@ -12,7 +12,7 @@ namespace TimeSeriesExtension
         public TextAsset DataFile1;  // Remove if CSV parsing is handled by an outside source
         public TextAsset DataFile2;
 
-        private TimeSeriesGraph Graph;
+        public TimeSeriesGraph Graph;
         private List<Transform> Points;
 
         // Labels
@@ -38,8 +38,7 @@ namespace TimeSeriesExtension
         private void Awake()
         {
             PlotScale = 10;
-            Points = new List<Transform>();
-            
+            Points = new List<Transform>();          
 
             CreateTimeSeriesGraphUsingCSV(); // Replace once combined with UI and CSV parsing components
 
@@ -47,6 +46,7 @@ namespace TimeSeriesExtension
             for (int i = 0; i < Graph.PlotPoints.Count; i++)
             {
                 Transform point = Instantiate(PointPrefab);
+                point.GetComponent<Renderer>().material.color = Random.ColorHSV(0.0f, 1.0f);
                 //point.SetParent(PointHolder.transform);
                 point.localPosition = Vector3.zero;
                 Points.Add(point);
