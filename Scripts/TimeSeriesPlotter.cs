@@ -74,6 +74,17 @@ namespace TimeSeriesExtension
             }
         }
 
+        private void DrawPlot()
+        {
+            // TO-DO
+            // Draw initial plot (prefab, labels etc.)
+        }
+
+        private void DrawLabels()
+        {
+            // TO-DO
+        }
+
         /*
          * Temporary method to use CSV parsing when creating graph
          */
@@ -140,21 +151,22 @@ namespace TimeSeriesExtension
             }
         }
 
-        private void DrawLabels()
-        {
-
-        }
-
         private void InitializeInteraction()
         {
             BoxCollider boxCollider = PointHolder.AddComponent<BoxCollider>();
 
-            // TO-DO determine size of boxCollider
+            // TO-DO: determine size of boxCollider
 
             PointHolder.AddComponent<BoundingBox>();
+            PointHolder.GetComponent<BoundingBox>().WireframeEdgeRadius = PointHolder.GetComponent<BoundingBox>().WireframeEdgeRadius * PlotScale;
+            PointHolder.GetComponent<BoundingBox>().WireframeMaterial.color = Color.white;
             PointHolder.AddComponent<ManipulationHandler>();
 
+            // Scale handle sizes
+            PointHolder.GetComponent<BoundingBox>().ScaleHandleSize = PointHolder.GetComponent<BoundingBox>().ScaleHandleSize * PlotScale;
+            PointHolder.GetComponent<BoundingBox>().RotationHandleSize = PointHolder.GetComponent<BoundingBox>().RotationHandleSize * PlotScale;
 
+            // TO-DO: add optional prefab models
         }
 
         private float Normalize(float value, float max, float min)
