@@ -140,6 +140,11 @@ namespace TimeSeriesExtension
             }
         }
 
+        private void DrawLabels()
+        {
+
+        }
+
         private void InitializeInteraction()
         {
             BoxCollider boxCollider = PointHolder.AddComponent<BoxCollider>();
