@@ -9,26 +9,28 @@ using UnityEngine;
  */
 
 public class PlotPoint
-{
-    private Transform Point { get; set; }
-    private List<float> XPoints { get; set; }
-    private List<float> YPoints { get; set; }
-    private List<float> ZPoints { get; set; }
+{ 
+    public List<float> XPoints { get; set; }
+    public List<float> YPoints { get; set; }
+    public List<float> ZPoints { get; set; }
 
-    private float XMax;
-    private float XMin;
-    private float YMax;
+    public float XMax;
+    public float XMin;
+    public float YMax;
 
-    private float YMin;
-    private float ZMax;
-    private float ZMin;
+    public float YMin;
+    public float ZMax;
+    public float ZMin;
 
-    public PlotPoint(Transform point, List<float> xpoints, List<float> ypoints, List<float> zpoints)
+    public int currentPointIndex { get; set; }
+
+    public PlotPoint(List<float> xpoints, List<float> ypoints, List<float> zpoints)
     {
-        Point = point;
         XPoints = xpoints;
         YPoints = ypoints;
         ZPoints = zpoints;
+
+        currentPointIndex = 0;
 
         CalculateMaxPoints();
         CalculateMinPoints();
@@ -46,23 +48,5 @@ public class PlotPoint
         XMin = XPoints.Min();
         YMin = YPoints.Min();
         ZMin = ZPoints.Min();
-    }
-
-    public void PrintValues()
-    {
-        foreach(var elem in XPoints)
-        {
-            Debug.Log("x: " + elem);
-        }
-
-        foreach (var elem in YPoints)
-        {
-            Debug.Log("y: " + elem);
-        }
-
-        foreach (var elem in ZPoints)
-        {
-            Debug.Log("z:" + elem);
-        }
     }
 }
