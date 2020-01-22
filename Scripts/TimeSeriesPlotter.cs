@@ -46,14 +46,21 @@ namespace TimeSeriesExtension
             for (int i = 0; i < Graph.PlotPoints.Count; i++)
             {
                 Transform point = Instantiate(PointPrefab);
+                point.localScale = new Vector3(0.03f, 0.03f, 0.03f) * PlotScale;
                 point.GetComponent<Renderer>().material.color = Random.ColorHSV(0.0f, 1.0f);
-                //point.SetParent(PointHolder.transform);
+                point.SetParent(PointHolder.transform);
                 point.localPosition = Vector3.zero;
                 Points.Add(point);
             }
 
+            // Center the plot
+            PointHolder.transform.position = new Vector3(0, 0, 0);
+
             // Initialize plot manipulation controls
             //InitializeInteraction();
+
+            Debug.Log(Graph.LogMax());
+            Debug.Log(Graph.LogMin());
         }
 
         void Update()
@@ -104,17 +111,25 @@ namespace TimeSeriesExtension
             // Grab the corresponding point from graph using given index
             PlotPoint pointFromGraph = Graph.PlotPoints[index];
 
+            float xmax, xmin, ymax, ymin, zmax, zmin;
+            xmax = Graph.XMax;
+            ymax = Graph.YMax;
+            zmax = Graph.ZMax;
+            xmin = Graph.XMin;
+            ymin = Graph.YMin;
+            zmin = Graph.ZMin;
+
             int currentIndex = pointFromGraph.currentPointIndex;
 
             if (currentIndex < pointFromGraph.XPoints.Count)
             {
                 // Update position vector
-                position.x = pointFromGraph.XPoints[currentIndex];
-                position.y = pointFromGraph.YPoints[currentIndex];
-                position.z = pointFromGraph.ZPoints[currentIndex];
+                position.x = Normalize(pointFromGraph.XPoints[currentIndex], xmax, xmin);
+                position.y = Normalize(pointFromGraph.YPoints[currentIndex], ymax, ymin);
+                position.z = Normalize(pointFromGraph.ZPoints[currentIndex], zmax, zmin);
 
                 //  Render point with updated position
-                point.localPosition = position;
+                point.localPosition = position * PlotScale;
 
                 // Update index
                 pointFromGraph.currentPointIndex++;
@@ -129,22 +144,30 @@ namespace TimeSeriesExtension
         {
             BoxCollider boxCollider = PointHolder.AddComponent<BoxCollider>();
 
+            // TO-DO determine size of boxCollider
+
             PointHolder.AddComponent<BoundingBox>();
             PointHolder.AddComponent<ManipulationHandler>();
 
-            //Scale handle sizes
-            PointHolder.GetComponent<BoundingBox>().ScaleHandleSize = PointHolder.GetComponent<BoundingBox>().ScaleHandleSize * PlotScale;
-            PointHolder.GetComponent<BoundingBox>().RotationHandleSize = PointHolder.GetComponent<BoundingBox>().RotationHandleSize * PlotScale;
 
+        }
 
-            //Optional handle prefab Models
-            PointHolder.GetComponent<BoundingBox>().HandleGrabbedMaterial = HandleGrabbedMaterial;
-            PointHolder.GetComponent<BoundingBox>().HandleMaterial = HandleMaterial;
-            PointHolder.GetComponent<BoundingBox>().ScaleHandlePrefab = ScaleHandle;
-            PointHolder.GetComponent<BoundingBox>().RotationHandleSlatePrefab = RotationHandle;
+        private float Normalize(float value, float max, float min)
+        {
+            // If values are all zero or constant
+            if (max - min == 0)
+            {
+                return value;
+            }
+            else
+            {
+                return (value - min) / (max - min);
+            }
+        }
 
-            // Optional appBar
-            // TO-DO
+        private float FindMiddle(float max, float min)
+        {
+            return (max + min) / 2;
         }
     }
 
