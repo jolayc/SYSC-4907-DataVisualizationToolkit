@@ -39,7 +39,7 @@ namespace TimeSeriesExtension
         void Start()
         {
             // Lock scene rendering to 60 fps
-            //Application.targetFrameRate = 60;
+            Application.targetFrameRate = 60;
         }
 
         private void Awake()
@@ -58,10 +58,13 @@ namespace TimeSeriesExtension
         // Update is called once per frame
         void Update()
         {
-            for (int i = 0; i < Points.Count; i++)
-            {
-                UpdatePoint(Points[i], i);
-            }
+            //if (Time.frameCount % 2 == 0)
+            //{
+                for (int i = 0; i < Points.Count; i++)
+                {
+                    UpdatePoint(Points[i], i);
+                }
+            //}
         }
 
         private void SetMaxMinMid()
@@ -159,15 +162,15 @@ namespace TimeSeriesExtension
 
                 // Render point with updated position
                 point.localPosition = position;
-                Debug.Log(position);
+                //Debug.Log(position);
 
                 // Update current plot point's index
                 pointFromGraph.currentPointIndex++;
             }
             else
             {
-                point.GetComponent<Renderer>().GetComponent<TrailRenderer>().Clear();
                 pointFromGraph.currentPointIndex = 0;
+                point.GetComponent<Renderer>().GetComponent<TrailRenderer>().Clear();
             }
         }
 
