@@ -46,7 +46,7 @@ namespace TimeSeriesExtension
 
         private void Awake()
         {
-            PlotScale = 5;
+            PlotScale = 10;
             Points = new List<Transform>();          
 
             CreateTimeSeriesGraphUsingCSV(); // Replace once combined with UI and CSV parsing components
@@ -69,6 +69,8 @@ namespace TimeSeriesExtension
 
             // Draw plot labels and other information
             DrawLabels();
+
+            PointHolder.transform.position = Vector3.zero; // Center the plot to the middle of the screen
 
             // Initialize plot manipulation controls
             //InitializeInteraction();
@@ -122,12 +124,12 @@ namespace TimeSeriesExtension
         private void DrawLabels()
         {
             GameObject plotTitle = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
-                                                         Normalize(GraphYMid, GraphYMax, GraphYMin),
-                                                         Normalize(GraphZMid, GraphZMax, GraphZMin))
-                                                         * PlotScale, Quaternion.identity);
+                                                                Normalize(GraphYMax, GraphYMax, GraphYMin),
+                                                                Normalize(GraphZMid, GraphZMax, GraphZMin))
+                                                                * PlotScale, Quaternion.identity);
 
             // Add title
-            plotTitle.transform.parent = PointHolder.transform;
+            plotTitle.transform.SetParent(PointHolder.transform);
             plotTitle.GetComponent<TextMesh>().text = PlotTitle;
 
             plotTitle.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f) * PlotScale;
@@ -135,13 +137,35 @@ namespace TimeSeriesExtension
 
             // Add x-axis
             GameObject xlabel;
+            xlabel = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                   Normalize(GraphYMid, GraphYMax, GraphYMin),
+                                                   Normalize(GraphZMid, GraphZMax, GraphZMin))
+                                                   * PlotScale, Quaternion.Euler(90, 0, 0));
+
+            xlabel.transform.SetParent(PointHolder.transform);
+            xlabel.GetComponent<TextMesh>().text = XAxisName;
+            xlabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f) * PlotScale;
 
             // Add y-axis
-            GameObject ylabel;
+            GameObject ylabel = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                   Normalize(GraphYMid, GraphYMax, GraphYMin),
+                                                   Normalize(GraphZMid, GraphZMax, GraphZMin))
+                                                   * PlotScale, Quaternion.Euler(0, 0, 90));
+
+            ylabel.transform.SetParent(PointHolder.transform);
+            ylabel.GetComponent<TextMesh>().text = YAxisName;
+            ylabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f) * PlotScale;
+
 
             // Add z-axis
-            GameObject zlabel;
+            GameObject zlabel = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                   Normalize(GraphYMid, GraphYMax, GraphYMin),
+                                                   Normalize(GraphZMid, GraphZMax, GraphZMin))
+                                                   * PlotScale, Quaternion.Euler(90, 90, 0));
 
+            zlabel.transform.SetParent(PointHolder.transform);
+            zlabel.GetComponent<TextMesh>().text = ZAxisName;
+            zlabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f) * PlotScale;
         }
 
         /*
