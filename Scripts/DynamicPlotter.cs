@@ -28,7 +28,6 @@ namespace TimeSeriesExtension
         public Material HandleGrabbedMaterial;
         public GameObject RotationHandle;
         public GameObject ScaleHandle;
-        //public TrailRenderer TrailRenderer;
         public float PlotScale;
 
         // from Graph
@@ -52,6 +51,8 @@ namespace TimeSeriesExtension
             DrawPlot();
             DrawTitle();
             InitializeInteraction();
+            //DebugMaxMidMin();
+            //DebugPositions();
         }
 
         // Update is called once per frame
@@ -112,11 +113,13 @@ namespace TimeSeriesExtension
 
             for (int i = 0; i < numberOfPoints; i++)
             {
-                Transform current_point = Instantiate(PointPrefab);
+                Transform current_point = Instantiate(PointPrefab, new Vector3(0,0,0), Quaternion.identity);
                 current_point.GetComponent<Renderer>().material.color = Random.ColorHSV(0.0f, 1.0f);
                 current_point.SetParent(PointHolder.transform);
                 current_point.localPosition = Vector3.zero;
                 current_point.localScale = new Vector3(0.03f, 0.03f, 0.03f);
+
+                // add current point to list for future references
                 Points.Add(current_point);
             }
 
@@ -156,6 +159,7 @@ namespace TimeSeriesExtension
 
                 // Render point with updated position
                 point.localPosition = position;
+                Debug.Log(position);
 
                 // Update current plot point's index
                 pointFromGraph.currentPointIndex++;
@@ -175,8 +179,7 @@ namespace TimeSeriesExtension
             }
             else
             {
-                float result = (value - min) / max - min;
-                //Debug.Log(result);
+                float result = (value - min) / (max - min);
                 return result;
             }
         }
@@ -196,6 +199,29 @@ namespace TimeSeriesExtension
             PointHolder.AddComponent<BoundingBox>();
             PointHolder.GetComponent<BoundingBox>().WireframeMaterial.color = Color.white;
             PointHolder.AddComponent<ManipulationHandler>();
+        }
+
+        // Debug functions
+        private void DebugMaxMidMin()
+        {
+            Debug.Log("X-Max, X-Mid, X-Min: " + GraphXMax + "," + GraphXMid + "," + GraphXMin);
+            Debug.Log("Y-Max, Y-Mid, Y-Min: " + GraphYMax + "," + GraphYMid + "," + GraphYMin);
+            Debug.Log("Z-Max, Z-Mid, Z-Min: " + GraphZMax + "," + GraphZMid + "," + GraphZMin);
+
+        }
+
+        private void DebugPositions()
+        {
+            Vector3 position;
+            PlotPoint current_point = Graph.PlotPoints[0];
+            int index = current_point.currentPointIndex;
+
+            position.x = Normalize(current_point.XPoints[0], GraphXMax, GraphXMin);
+            position.y = Normalize(current_point.YPoints[0], GraphXMax, GraphXMin);
+            position.z = Normalize(current_point.ZPoints[0], GraphZMax, GraphZMin);
+
+            Debug.Log(position);
+
         }
     }
 }
