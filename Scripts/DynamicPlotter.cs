@@ -28,7 +28,7 @@ namespace TimeSeriesExtension
         public Material HandleGrabbedMaterial;
         public GameObject RotationHandle;
         public GameObject ScaleHandle;
-        public TrailRenderer TrailRenderer;
+        //public TrailRenderer TrailRenderer;
         public float PlotScale;
 
         // from Graph
@@ -50,16 +50,17 @@ namespace TimeSeriesExtension
             CreateGraph();
             SetMaxMinMid();
             DrawPlot();
+            DrawTitle();
             InitializeInteraction();
         }
 
         // Update is called once per frame
         void Update()
         {
-            //for (int i = 0; i < Points.Count; i++)
-            //{
-            //    UpdatePoint(Points[i], i);
-            //}
+            for (int i = 0; i < Points.Count; i++)
+            {
+                UpdatePoint(Points[i], i);
+            }
         }
 
         private void SetMaxMinMid()
@@ -119,14 +120,51 @@ namespace TimeSeriesExtension
                 Points.Add(current_point);
             }
 
+            // Center the pivot of container to center of plot
             PointHolder.transform.position = new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
                                                          Normalize(GraphYMid, GraphYMax, GraphYMin),
                                                          Normalize(GraphZMid, GraphZMax, GraphZMin));
         }
 
+        private void DrawTitle()
+        {
+            // Configure plot title
+            GameObject plotTitle = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                                 Normalize(GraphYMid, GraphYMax, GraphYMin),
+                                                                 Normalize(GraphZMid, GraphZMax, GraphZMin)),
+                                                                 Quaternion.identity);
+            // Render title text
+            plotTitle.transform.SetParent(PointHolder.transform);
+            plotTitle.GetComponent<TextMesh>().text = PlotTitle;
+            plotTitle.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            plotTitle.transform.position = plotTitle.transform.position + new Vector3(0, Normalize(GraphYMax, GraphYMax, GraphYMin), 0);
+        }
+
         private void UpdatePoint(Transform point, int index)
         {
+            Vector3 position;
 
+            PlotPoint pointFromGraph = Graph.PlotPoints[index];
+            int currentIndex = pointFromGraph.currentPointIndex;
+
+            if (currentIndex < pointFromGraph.XPoints.Count)
+            {
+                // Update position vector
+                position.x = Normalize(pointFromGraph.XPoints[currentIndex], GraphXMax, GraphXMin);
+                position.y = Normalize(pointFromGraph.YPoints[currentIndex], GraphYMax, GraphYMin);
+                position.z = Normalize(pointFromGraph.ZPoints[currentIndex], GraphZMax, GraphZMin);
+
+                // Render point with updated position
+                point.localPosition = position;
+
+                // Update current plot point's index
+                pointFromGraph.currentPointIndex++;
+            }
+            else
+            {
+                point.GetComponent<Renderer>().GetComponent<TrailRenderer>().Clear();
+                pointFromGraph.currentPointIndex = 0;
+            }
         }
 
         private float Normalize(float value, float max, float min)
@@ -138,7 +176,7 @@ namespace TimeSeriesExtension
             else
             {
                 float result = (value - min) / max - min;
-                Debug.Log(result);
+                //Debug.Log(result);
                 return result;
             }
         }
@@ -151,6 +189,9 @@ namespace TimeSeriesExtension
         private void InitializeInteraction()
         {
             BoxCollider boxCollider = PointHolder.AddComponent<BoxCollider>();
+            PointHolder.transform.gameObject.GetComponent<BoxCollider>().size = new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                                                            Normalize(GraphYMid, GraphYMax, GraphYMin),
+                                                                                            Normalize(GraphZMid, GraphZMax, GraphZMin));
 
             PointHolder.AddComponent<BoundingBox>();
             PointHolder.GetComponent<BoundingBox>().WireframeMaterial.color = Color.white;
