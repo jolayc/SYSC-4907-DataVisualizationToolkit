@@ -51,24 +51,24 @@ namespace TimeSeriesExtension
             SetMaxMinMid();
             DrawPlot();
             DebugPlot();
+            DrawTitle();
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (Time.frameCount % 2 == 0)
-            {
+            //if (Time.frameCount % 2 == 0)
+            //{
                 for (int i = 0; i < Points.Count; i++)
                 {
                     UpdatePoint(Points[i], i);
                 }
-            }
+          //  }
         }
 
         private void DebugPlot()
         {
             // TO-DO
-            Debug.Log(PointHolder.GetComponent<BoxCollider>().size);
         }
 
         private void SetMaxMinMid()
@@ -170,53 +170,25 @@ namespace TimeSeriesExtension
             
         private void DrawTitle()
         {
-            // Configure plot title
-            GameObject plotTitle = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
-                                                                 Normalize(GraphYMid, GraphYMax, GraphYMin),
-                                                                 Normalize(GraphZMid, GraphZMax, GraphZMin)),
-                                                                 Quaternion.identity);
-            // Render title text
+            Vector3 graphExtent = PointHolder.GetComponent<BoxCollider>().size / 2;
+
+            GameObject plotTitle = Instantiate(Text, new Vector3(
+                                               NormalizeToRange(graphExtent.x * -1, graphExtent.x, GraphXMid, GraphXMax, GraphXMin),
+                                               NormalizeToRange(graphExtent.y * -1, graphExtent.y, GraphYMid, GraphYMax, GraphYMin),
+                                               NormalizeToRange(graphExtent.z * -1, graphExtent.z, GraphZMid, GraphZMax, GraphZMin)),
+                                               Quaternion.identity);
+
+            // Add title
             plotTitle.transform.SetParent(PointHolder.transform);
             plotTitle.GetComponent<TextMesh>().text = PlotTitle;
             plotTitle.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            plotTitle.transform.position = plotTitle.transform.position + new Vector3(0, Normalize(GraphYMax, GraphYMax, GraphYMin), 0);
+            plotTitle.transform.position = plotTitle.transform.position + new Vector3(0, graphExtent.y, 0);
         }
 
         private void DrawTime()
         {
             // To-do
         }
-
-        // THIS BETTER WORK
-        //private void UpdatePoint(Transform point, int index)
-        //{
-            //Vector3 updated_position;
-
-            //PlotPoint pointFromGraph = Graph.PlotPoints[index];
-            //int currentIndex = pointFromGraph.currentPointIndex;
-
-            //// Bounds of PointHolder to use when normalizing the updated_position of a point
-            //Vector3 max_range = PointHolder.GetComponent<BoxCollider>().bounds.max;
-            //Vector3 min_range = PointHolder.GetComponent<BoxCollider>().bounds.min;
-
-            //if (currentIndex < pointFromGraph.XPoints.Count)
-            //{
-            //    updated_position.x = NormalizeInRange(min_range.x, max_range.x, pointFromGraph.XPoints[currentIndex], GraphXMax, GraphXMin);
-            //    updated_position.y = NormalizeInRange(min_range.y, max_range.y, pointFromGraph.YPoints[currentIndex], GraphYMax, GraphYMin);
-            //    updated_position.z = NormalizeInRange(min_range.z, max_range.z, pointFromGraph.ZPoints[currentIndex], GraphZMax, GraphZMin);
-
-            //    // Update point position in local space (to PointHolder)
-            //    point.localPosition = updated_position;
-
-            //    // Update current plot point's index
-            //    pointFromGraph.currentPointIndex++;
-            //}
-
-            //else
-            //{
-            //    pointFromGraph.currentPointIndex = 0;
-            //}
-        //}
 
         private float Normalize(float value, float max, float min)
         {
