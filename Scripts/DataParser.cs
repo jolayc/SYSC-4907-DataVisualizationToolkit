@@ -42,5 +42,9 @@ namespace TimeSeriesExtension
             }
             return listOfValues;
         }
+        public List<float> GetListDiscardHeader(int index)
+        {
+            return null;
+        }
     }
 }

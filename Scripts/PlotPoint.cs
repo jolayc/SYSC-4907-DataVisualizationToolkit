@@ -13,6 +13,7 @@ public class PlotPoint
     public List<float> XPoints { get; internal set; }
     public List<float> YPoints { get; internal set; }
     public List<float> ZPoints { get; internal set; }
+    public List<float> TimePoints { get; internal set; }
 
     public float XMax;
     public float XMin;
@@ -26,12 +27,10 @@ public class PlotPoint
 
     public PlotPoint(List<float> xpoints, List<float> ypoints, List<float> zpoints)
     {
+        currentPointIndex = 0;
         XPoints = xpoints;
         YPoints = ypoints;
         ZPoints = zpoints;
-
-        currentPointIndex = 0;
-
         CalculateMaxPoints();
         CalculateMinPoints();
     }

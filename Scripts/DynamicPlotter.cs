@@ -39,32 +39,50 @@ namespace TimeSeriesExtension
         void Start()
         {
             // Lock scene rendering to 60 fps
-            Application.targetFrameRate = 60;
+            //Application.targetFrameRate = 60;
         }
 
         private void Awake()
         {
+            PlotScale = 1;
             Points = new List<Transform>();
 
             CreateGraph();
             SetMaxMinMid();
+            DebugMaxMidMin();
             DrawPlot();
-            DrawTitle();
-            InitializeInteraction();
-            //DebugMaxMidMin();
-            //DebugPositions();
         }
 
         // Update is called once per frame
         void Update()
         {
-            //if (Time.frameCount % 2 == 0)
-            //{
+            if (Time.frameCount % 2 == 0)
+            {
                 for (int i = 0; i < Points.Count; i++)
                 {
                     UpdatePoint(Points[i], i);
                 }
-            //}
+            }
+        }
+
+        private void DebugPlot()
+        {
+            Vector3 max_bounds = PointHolder.GetComponent<BoxCollider>().bounds.max;
+            Vector3 min_bounds = PointHolder.GetComponent<BoxCollider>().bounds.min;
+            Vector3 center = PointHolder.GetComponent<BoxCollider>().size;
+
+            Debug.Log("max bounds: " + max_bounds);
+            Debug.Log("min bounds: " + min_bounds);
+            Debug.Log("center: " + center);
+
+            Debug.Log(NormalizeInRange(-0.5f, 0.5f, 100f, 0f, 100f));
+        }
+
+        private void DebugDrone()
+        {
+            Debug.Log("X,Y,Z max: " + Graph.XMax + "," + Graph.YMax + "," + Graph.ZMax);
+            Debug.Log("X,Y,Z mid: " + Graph.XMid + "," + Graph.YMid + "," + Graph.ZMid);
+            Debug.Log("X,Y,Z min: " + Graph.XMin + "," + Graph.YMin + "," + Graph.ZMin);
         }
 
         private void SetMaxMinMid()
@@ -110,26 +128,43 @@ namespace TimeSeriesExtension
             Graph.AddPlotPoint(new_point);
         }
 
+        private void CreateDronePlot()
+        {
+            Graph = new TimeSeriesGraph();
+
+            string csvString = DataFile.ToString();
+            DataParser parser = new DataParser(csvString);
+
+            List<float> x_values = parser.GetListFromColumn(3); // longitude
+            List<float> y_values = parser.GetListFromColumn(2); // latitude
+            List<float> z_values = parser.GetListFromColumn(4); // altitude
+
+            PlotPoint new_point = new PlotPoint(x_values, y_values, z_values);
+            Graph.AddPlotPoint(new_point);
+        }
+
         private void DrawPlot()
         {
             int numberOfPoints = Graph.PlotPoints.Count;
 
+            PointHolder.transform.position = Vector3.zero; // Center pivot to origin
+
+            // Configure MRTK components of Graph, e.g. BoundingBox and ManipulationHandler
+            PointHolder.AddComponent<BoxCollider>();
+            PointHolder.AddComponent<BoundingBox>();
+            PointHolder.GetComponent<BoundingBox>().WireframeMaterial.color = Color.white;
+            PointHolder.AddComponent<ManipulationHandler>();
+
             for (int i = 0; i < numberOfPoints; i++)
             {
-                Transform current_point = Instantiate(PointPrefab, new Vector3(0,0,0), Quaternion.identity);
+                Transform current_point = Instantiate(PointPrefab);
                 current_point.GetComponent<Renderer>().material.color = Random.ColorHSV(0.0f, 1.0f);
                 current_point.SetParent(PointHolder.transform);
-                current_point.localPosition = Vector3.zero;
-                current_point.localScale = new Vector3(0.03f, 0.03f, 0.03f);
+                current_point.localPosition = PointHolder.GetComponent<BoxCollider>().center;
+                current_point.localScale = new Vector3(0.1f, 0.1f, 0.1f);
 
-                // add current point to list for future references
                 Points.Add(current_point);
             }
-
-            // Center the pivot of container to center of plot
-            PointHolder.transform.position = new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
-                                                         Normalize(GraphYMid, GraphYMax, GraphYMin),
-                                                         Normalize(GraphZMid, GraphZMax, GraphZMin));
         }
 
         private void DrawTitle()
@@ -146,31 +181,39 @@ namespace TimeSeriesExtension
             plotTitle.transform.position = plotTitle.transform.position + new Vector3(0, Normalize(GraphYMax, GraphYMax, GraphYMin), 0);
         }
 
+        private void DrawTime()
+        {
+            // To-do
+        }
+
+        // THIS BETTER WORK
         private void UpdatePoint(Transform point, int index)
         {
-            Vector3 position;
+            Vector3 updated_position;
 
             PlotPoint pointFromGraph = Graph.PlotPoints[index];
             int currentIndex = pointFromGraph.currentPointIndex;
 
+            // Bounds of PointHolder to use when normalizing the updated_position of a point
+            Vector3 max_range = PointHolder.GetComponent<BoxCollider>().bounds.max;
+            Vector3 min_range = PointHolder.GetComponent<BoxCollider>().bounds.min;
+
             if (currentIndex < pointFromGraph.XPoints.Count)
             {
-                // Update position vector
-                position.x = Normalize(pointFromGraph.XPoints[currentIndex], GraphXMax, GraphXMin);
-                position.y = Normalize(pointFromGraph.YPoints[currentIndex], GraphYMax, GraphYMin);
-                position.z = Normalize(pointFromGraph.ZPoints[currentIndex], GraphZMax, GraphZMin);
+                updated_position.x = NormalizeInRange(min_range.x, max_range.x, pointFromGraph.XPoints[currentIndex], GraphXMax, GraphXMin);
+                updated_position.y = NormalizeInRange(min_range.y, max_range.y, pointFromGraph.YPoints[currentIndex], GraphYMax, GraphYMin);
+                updated_position.z = NormalizeInRange(min_range.z, max_range.z, pointFromGraph.ZPoints[currentIndex], GraphZMax, GraphZMin);
 
-                // Render point with updated position
-                point.localPosition = position;
-                //Debug.Log(position);
+                // Update point position in local space (to PointHolder)
+                point.localPosition = updated_position;
 
                 // Update current plot point's index
                 pointFromGraph.currentPointIndex++;
             }
+
             else
             {
                 pointFromGraph.currentPointIndex = 0;
-                point.GetComponent<Renderer>().GetComponent<TrailRenderer>().Clear();
             }
         }
 
@@ -187,6 +230,13 @@ namespace TimeSeriesExtension
             }
         }
 
+        private float NormalizeInRange(float a, float b, float value, float min, float max)
+        {
+            // Normalize a value between range [a, b]
+            float normalized = (value - min) / (max - min);
+            return ((b - a) * normalized) + a;
+        }
+
         private float GetMiddle(float max, float min)
         {
             return (max + min) / 2;
@@ -197,7 +247,7 @@ namespace TimeSeriesExtension
             BoxCollider boxCollider = PointHolder.AddComponent<BoxCollider>();
             PointHolder.transform.gameObject.GetComponent<BoxCollider>().size = new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
                                                                                             Normalize(GraphYMid, GraphYMax, GraphYMin),
-                                                                                            Normalize(GraphZMid, GraphZMax, GraphZMin));
+                                                                                            Normalize(GraphZMid, GraphZMax, GraphZMin)) * PlotScale;
 
             PointHolder.AddComponent<BoundingBox>();
             PointHolder.GetComponent<BoundingBox>().WireframeMaterial.color = Color.white;
