@@ -13,8 +13,6 @@ namespace TimeSeriesExtension
 
         public Transform PointPrefab;
 
-        public TextAsset DataFile;
-
         public TimeSeriesGraph Graph;
 
         private List<Transform> Points;
@@ -44,14 +42,7 @@ namespace TimeSeriesExtension
 
         private void Awake()
         {
-            PlotScale = 1;
-            Points = new List<Transform>();
-
-            CreateGraph();
-            SetMaxMinMid();
-            DrawPlot();
-            DebugPlot();
-            DrawTitle();
+            enabled = false;
         }
 
         // Update is called once per frame
@@ -64,6 +55,21 @@ namespace TimeSeriesExtension
                     UpdatePoint(Points[i], i);
                 }
           //  }
+        }
+
+        public void Init()
+        {
+            PlotScale = 1;
+            Points = new List<Transform>();
+
+            Debug.Log(Graph);
+
+            SetMaxMinMid();
+            DrawPlot();
+            //DrawTitle();
+            //DrawTime();
+
+            enabled = true;
         }
 
         private void DebugPlot()
@@ -85,33 +91,6 @@ namespace TimeSeriesExtension
             GraphZMax = Graph.ZMax;
             GraphZMid = Graph.ZMid;
             GraphZMin = Graph.ZMin;
-        }
-
-        private void CreateGraph()
-        {
-            Graph = new TimeSeriesGraph();
-
-            string csvString = DataFile.ToString();
-            DataParser parser = new DataParser(csvString);
-
-            List<float> x1 = parser.GetListFromColumn(0);
-            List<float> y1 = parser.GetListFromColumn(1);
-            List<float> z1 = parser.GetListFromColumn(2);
-            List<float> x2 = parser.GetListFromColumn(3);
-            List<float> y2 = parser.GetListFromColumn(4);
-            List<float> z2 = parser.GetListFromColumn(5);
-            List<float> x3 = parser.GetListFromColumn(6);
-            List<float> y3 = parser.GetListFromColumn(7);
-            List<float> z3 = parser.GetListFromColumn(8);
-
-            PlotPoint new_point = new PlotPoint(x1, y1, z1);
-            Graph.AddPlotPoint(new_point);
-
-            new_point = new PlotPoint(x2, y2, z2);
-            Graph.AddPlotPoint(new_point);
-
-            new_point = new PlotPoint(x3, y3, z3);
-            Graph.AddPlotPoint(new_point);
         }
 
         private void DrawPlot()
@@ -178,7 +157,7 @@ namespace TimeSeriesExtension
                                                NormalizeToRange(graphExtent.z * -1, graphExtent.z, GraphZMid, GraphZMax, GraphZMin)),
                                                Quaternion.identity);
 
-            // Add title
+            // Add title text
             plotTitle.transform.SetParent(PointHolder.transform);
             plotTitle.GetComponent<TextMesh>().text = PlotTitle;
             plotTitle.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
@@ -187,7 +166,19 @@ namespace TimeSeriesExtension
 
         private void DrawTime()
         {
-            // To-do
+            Vector3 graphExtent = PointHolder.GetComponent<BoxCollider>().size / 2;
+
+            GameObject textTitle = Instantiate(Text, new Vector3(
+                                               NormalizeToRange(graphExtent.x * -1, graphExtent.x, GraphXMid, GraphXMax, GraphXMin),
+                                               NormalizeToRange(graphExtent.y * -1, graphExtent.y, GraphYMid, GraphYMax, GraphYMin),
+                                               NormalizeToRange(graphExtent.z * -1, graphExtent.z, GraphZMid, GraphZMax, GraphZMin)),
+                                               Quaternion.identity);
+
+            // Add time text
+            textTitle.transform.SetParent(PointHolder.transform);
+            textTitle.GetComponent<TextMesh>().text = "Time: ";
+            textTitle.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            textTitle.transform.position = textTitle.transform.position - new Vector3(0, graphExtent.y, 0);
         }
 
         private float Normalize(float value, float max, float min)
@@ -210,6 +201,10 @@ namespace TimeSeriesExtension
             return ((b - a) * normalized_value) + a;
         }
 
+        //private void NormalizeToRange(float a, float b, float normalized_value)
+        //{
+        //    return ((b - a) * normalized_value) + a;
+        //}
 
         private float GetMiddle(float max, float min)
         {
