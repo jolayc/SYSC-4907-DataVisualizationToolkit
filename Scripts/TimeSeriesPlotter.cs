@@ -7,8 +7,10 @@ namespace TimeSeriesExtension
 {
     public class TimeSeriesPlotter : MonoBehaviour
     {
+        public GameObject Text;
         public GameObject PointHolder;
         public Transform PointPrefab;
+
         public TextAsset DataFile1;  // Remove if CSV parsing is handled by an outside source
         public TextAsset DataFile2;
 
@@ -29,10 +31,17 @@ namespace TimeSeriesExtension
         public TrailRenderer TrailRenderer;
         public float PlotScale;
 
+        // from Graph
+        private float GraphXMax, GraphXMid, GraphXMin;
+        private float GraphYMax, GraphYMid, GraphYMin;
+        private float GraphZMax, GraphZMid, GraphZMin;
+
+
         // Start is called before the first frame update
         void Start()
         {
-
+            // Lock scene rendering to 60 fps
+            Application.targetFrameRate = 60;
         }
 
         private void Awake()
@@ -42,36 +51,121 @@ namespace TimeSeriesExtension
 
             CreateTimeSeriesGraphUsingCSV(); // Replace once combined with UI and CSV parsing components
 
-            // Instantiate prefabs for each plot point in Graph
-            for (int i = 0; i < Graph.PlotPoints.Count; i++)
-            {
-                Transform point = Instantiate(PointPrefab);
-                point.localScale = new Vector3(0.03f, 0.03f, 0.03f) * PlotScale;
-                point.GetComponent<Renderer>().material.color = Random.ColorHSV(0.0f, 1.0f);
-                point.SetParent(PointHolder.transform);
-                point.localPosition = Vector3.zero;
-                Points.Add(point);
-            }
+            // Grab max, min and mid points of graph
+            GraphXMax = Graph.XMax;
+            GraphXMid = Graph.XMid;
+            GraphXMin = Graph.XMin;
 
-            // Center the plot
-            PointHolder.transform.position = new Vector3(0, 0, 0);
+            GraphYMax = Graph.YMax;
+            GraphYMid = Graph.YMid;
+            GraphYMin = Graph.YMin;
+
+            GraphZMax = Graph.ZMax;
+            GraphZMid = Graph.ZMid;
+            GraphZMin = Graph.ZMin;
+
+            // Instantiate prefabs for each plot point in Graph
+            DrawPlot();
+
+            // Draw plot labels and other information
+            DrawLabels();
+
+            PointHolder.transform.position = Vector3.zero; // Center the plot to the middle of the screen
 
             // Initialize plot manipulation controls
             //InitializeInteraction();
 
-            Debug.Log(Graph.LogMax());
-            Debug.Log(Graph.LogMin());
+            // LogValues(); // for debugging
         }
 
         void Update()
         {
-            if (Time.frameCount % 10 == 0)
+            if (Time.frameCount % 5 == 0)
             {
                 for (int i = 0; i < Points.Count; i++)
                 {
                     UpdatePoint(Points[i], i);
                 }
             }
+        }
+
+        /**
+         * Log various Graph values for debugging purposes
+         */ 
+        private void LogValues()
+        {
+            Debug.Log(Graph.LogMax());
+            Debug.Log(Graph.LogMin());
+            Debug.Log(Graph.LogMid());
+        }
+
+        private void DrawPlot()
+        {
+            // Render plot points at center (0, 0, 0)
+            int numberOfPoints = Graph.PlotPoints.Count;
+
+            for (int i = 0; i < numberOfPoints; i++)
+            {
+                Transform current_point = Instantiate(PointPrefab);
+                current_point.GetComponent<Renderer>().material.color = Random.ColorHSV(0.0f, 1.0f); // assign random color to point
+                current_point.SetParent(PointHolder.transform);
+                current_point.localPosition = Vector3.zero;
+                current_point.localScale = new Vector3(0.03f, 0.03f, 0.03f) * PlotScale;
+                Points.Add(current_point);
+            }
+
+            // Center the pivot of object to center of plot
+            PointHolder.transform.position = new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                         Normalize(GraphYMid, GraphYMax, GraphYMin),
+                                                         Normalize(GraphZMid, GraphZMax, GraphZMin))
+                                                         * PlotScale;
+        }
+
+        private void DrawLabels()
+        {
+            GameObject plotTitle = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                                Normalize(GraphYMax, GraphYMax, GraphYMin),
+                                                                Normalize(GraphZMid, GraphZMax, GraphZMin))
+                                                                * PlotScale, Quaternion.identity);
+
+            // Add title
+            plotTitle.transform.SetParent(PointHolder.transform);
+            plotTitle.GetComponent<TextMesh>().text = PlotTitle;
+
+            plotTitle.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f) * PlotScale;
+            plotTitle.transform.position = plotTitle.transform.position + new Vector3(0, plotTitle.GetComponent<Renderer>().bounds.size.y / 2, 0);
+
+            // Add x-axis
+            GameObject xlabel;
+            xlabel = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                   Normalize(GraphYMid, GraphYMax, GraphYMin),
+                                                   Normalize(GraphZMid, GraphZMax, GraphZMin))
+                                                   * PlotScale, Quaternion.Euler(90, 0, 0));
+
+            xlabel.transform.SetParent(PointHolder.transform);
+            xlabel.GetComponent<TextMesh>().text = XAxisName;
+            xlabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f) * PlotScale;
+
+            // Add y-axis
+            GameObject ylabel = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                   Normalize(GraphYMid, GraphYMax, GraphYMin),
+                                                   Normalize(GraphZMid, GraphZMax, GraphZMin))
+                                                   * PlotScale, Quaternion.Euler(0, 0, 90));
+
+            ylabel.transform.SetParent(PointHolder.transform);
+            ylabel.GetComponent<TextMesh>().text = YAxisName;
+            ylabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f) * PlotScale;
+
+
+            // Add z-axis
+            GameObject zlabel = Instantiate(Text, new Vector3(Normalize(GraphXMid, GraphXMax, GraphXMin),
+                                                   Normalize(GraphYMid, GraphYMax, GraphYMin),
+                                                   Normalize(GraphZMid, GraphZMax, GraphZMin))
+                                                   * PlotScale, Quaternion.Euler(90, 90, 0));
+
+            zlabel.transform.SetParent(PointHolder.transform);
+            zlabel.GetComponent<TextMesh>().text = ZAxisName;
+            zlabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f) * PlotScale;
         }
 
         /*
@@ -112,6 +206,7 @@ namespace TimeSeriesExtension
             PlotPoint pointFromGraph = Graph.PlotPoints[index];
 
             float xmax, xmin, ymax, ymin, zmax, zmin;
+
             xmax = Graph.XMax;
             ymax = Graph.YMax;
             zmax = Graph.ZMax;
@@ -140,21 +235,22 @@ namespace TimeSeriesExtension
             }
         }
 
-        private void DrawLabels()
-        {
-
-        }
-
         private void InitializeInteraction()
         {
             BoxCollider boxCollider = PointHolder.AddComponent<BoxCollider>();
 
-            // TO-DO determine size of boxCollider
+            // TO-DO: determine size of boxCollider
 
             PointHolder.AddComponent<BoundingBox>();
+            PointHolder.GetComponent<BoundingBox>().WireframeEdgeRadius = PointHolder.GetComponent<BoundingBox>().WireframeEdgeRadius * PlotScale;
+            PointHolder.GetComponent<BoundingBox>().WireframeMaterial.color = Color.white;
             PointHolder.AddComponent<ManipulationHandler>();
 
+            // Scale handle sizes
+            PointHolder.GetComponent<BoundingBox>().ScaleHandleSize = PointHolder.GetComponent<BoundingBox>().ScaleHandleSize * PlotScale;
+            PointHolder.GetComponent<BoundingBox>().RotationHandleSize = PointHolder.GetComponent<BoundingBox>().RotationHandleSize * PlotScale;
 
+            // TO-DO: add optional prefab models
         }
 
         private float Normalize(float value, float max, float min)
@@ -169,11 +265,5 @@ namespace TimeSeriesExtension
                 return (value - min) / (max - min);
             }
         }
-
-        private float FindMiddle(float max, float min)
-        {
-            return (max + min) / 2;
-        }
     }
-
 }

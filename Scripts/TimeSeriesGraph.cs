@@ -8,13 +8,19 @@ namespace TimeSeriesExtension
     {
         public List<PlotPoint> PlotPoints { get; set; }
 
+        public List<string> TimePoints { get; set; }
+
         public float XMax { get; set; }
         public float YMax { get; set; }
-        public float ZMax;
+        public float ZMax { get; set; }
 
-        public float XMin;
-        public float YMin;
-        public float ZMin;
+        public float XMin { get; set; }
+        public float YMin { get; set; }
+        public float ZMin { get; set; }
+
+        public float XMid { get; set; }
+        public float YMid { get; set; }
+        public float ZMid { get; set; }
 
         /*
          * Constructor used when no initial data is provided
@@ -30,6 +36,10 @@ namespace TimeSeriesExtension
         public TimeSeriesGraph(List<PlotPoint> points)
         {
             PlotPoints = points;
+
+            CalculateMaxPoints();
+            CalculateMinPoints();
+            CalculateMidPoints();
         }
 
         public void AddPlotPoint(PlotPoint point)
@@ -38,6 +48,12 @@ namespace TimeSeriesExtension
 
             CalculateMaxPoints();
             CalculateMinPoints();
+            CalculateMidPoints();
+        }
+
+        public void AddTimePoints(List<string> timePoints)
+        {
+            TimePoints = timePoints;
         }
 
         private void CalculateMaxPoints()
@@ -88,6 +104,13 @@ namespace TimeSeriesExtension
             ZMin = zmin;
         }
 
+        private void CalculateMidPoints()
+        {
+            XMid = FindMiddle(XMax, XMin);
+            YMid = FindMiddle(YMax, YMin);
+            ZMid = FindMiddle(ZMax, ZMin);
+        }
+
         public string LogMax()
         {
             return "(XMax, YMax, ZMax): " + XMax + "," + YMax + "," + ZMax;
@@ -96,6 +119,21 @@ namespace TimeSeriesExtension
         public string LogMin()
         {
             return "(XMin, YMin, ZMin): " + XMin + "," + YMin + "," + ZMin;
+        }
+
+        public string LogMid()
+        {
+            return "(XMid, YMid, ZMid): " + XMid + "," + YMid + "," + ZMid;
+        }
+
+        private float FindMiddle(float max, float min)
+        {
+            return (max + min) / 2;
+        }
+
+        public bool isTimeGraph()
+        {
+            return TimePoints != null;
         }
     }
 }
