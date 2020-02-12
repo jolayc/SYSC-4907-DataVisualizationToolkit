@@ -27,6 +27,7 @@ namespace TimeSeriesExtension
         public GameObject RotationHandle;
         public GameObject ScaleHandle;
         public float PlotScale;
+        private GameObject TimeText;
 
         // from Graph
         private float GraphXMax, GraphXMid, GraphXMin;
@@ -66,8 +67,8 @@ namespace TimeSeriesExtension
 
             SetMaxMinMid();
             DrawPlot();
-            //DrawTitle();
-            //DrawTime();
+            DrawTitle();
+            DrawTime();
 
             enabled = true;
         }
@@ -138,13 +139,23 @@ namespace TimeSeriesExtension
 
                 point.localPosition = updated_position;
 
-                pointFromGraph.currentPointIndex++;
+                if (Graph.isTimeGraph())
+                {
+                    UpdateTime(currentIndex);
+                }
 
+                pointFromGraph.currentPointIndex++;
             }
             else
             {
                 pointFromGraph.currentPointIndex = 0;
             }
+        }
+
+        private void UpdateTime(int index)
+        {
+            List<string> timePoints = Graph.TimePoints;
+            TimeText.GetComponent<TextMesh>().text = "Time: " + timePoints[index];
         }
             
         private void DrawTitle()
@@ -168,17 +179,17 @@ namespace TimeSeriesExtension
         {
             Vector3 graphExtent = PointHolder.GetComponent<BoxCollider>().size / 2;
 
-            GameObject textTitle = Instantiate(Text, new Vector3(
+            TimeText = Instantiate(Text, new Vector3(
                                                NormalizeToRange(graphExtent.x * -1, graphExtent.x, GraphXMid, GraphXMax, GraphXMin),
                                                NormalizeToRange(graphExtent.y * -1, graphExtent.y, GraphYMid, GraphYMax, GraphYMin),
                                                NormalizeToRange(graphExtent.z * -1, graphExtent.z, GraphZMid, GraphZMax, GraphZMin)),
                                                Quaternion.identity);
 
             // Add time text
-            textTitle.transform.SetParent(PointHolder.transform);
-            textTitle.GetComponent<TextMesh>().text = "Time: ";
-            textTitle.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            textTitle.transform.position = textTitle.transform.position - new Vector3(0, graphExtent.y, 0);
+            TimeText.transform.SetParent(PointHolder.transform);
+            TimeText.GetComponent<TextMesh>().text = "";
+            TimeText.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            TimeText.transform.position = TimeText.transform.position - new Vector3(0, graphExtent.y, 0);
         }
 
         private float Normalize(float value, float max, float min)

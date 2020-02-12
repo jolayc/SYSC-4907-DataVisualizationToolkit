@@ -42,9 +42,29 @@ namespace TimeSeriesExtension
             }
             return listOfValues;
         }
-        public List<float> GetListDiscardHeader(int index)
+        public List<string> GetTimePoints(int index)
         {
-            return null;
+            List<string> listOfValues = new List<string>();
+            using (var reader = new StringReader(DataString))
+            {
+                while (true)
+                {
+                    var line = reader.ReadLine();
+                    if (line != null)
+                    {
+                        var values = line.Split(',');
+
+                        var value = values[index];
+
+                        listOfValues.Add(value);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            return listOfValues;
         }
     }
 }

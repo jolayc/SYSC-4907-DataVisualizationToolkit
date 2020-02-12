@@ -48,7 +48,11 @@ namespace TimeSeriesExtension
             plotter.PointPrefab = dataPoint;
             Destroy(dataPoint.gameObject);
 
-            plotter.Text = Resources.Load("Assets/DataVisualizationToolkit/Plot Objects/text3D.prefab") as GameObject;
+            GameObject text = new GameObject();
+
+            text.AddComponent<TextMesh>();
+
+            plotter.Text = text;
 
             plotter.PlotTitle = name;
 
@@ -96,9 +100,11 @@ namespace TimeSeriesExtension
             List<float> x_values = parser.GetListFromColumn(3); //long
             List<float> y_values = parser.GetListFromColumn(2); //lat
             List<float> z_values = parser.GetListFromColumn(4); //alt
+            List<string> time_values = parser.GetTimePoints(1); //time
 
             PlotPoint new_point = new PlotPoint(x_values, y_values, z_values);
             graph.AddPlotPoint(new_point);
+            graph.AddTimePoints(time_values);
 
             return graph;
         }

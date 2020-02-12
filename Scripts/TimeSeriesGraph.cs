@@ -8,6 +8,8 @@ namespace TimeSeriesExtension
     {
         public List<PlotPoint> PlotPoints { get; set; }
 
+        public List<string> TimePoints { get; set; }
+
         public float XMax { get; set; }
         public float YMax { get; set; }
         public float ZMax { get; set; }
@@ -47,6 +49,11 @@ namespace TimeSeriesExtension
             CalculateMaxPoints();
             CalculateMinPoints();
             CalculateMidPoints();
+        }
+
+        public void AddTimePoints(List<string> timePoints)
+        {
+            TimePoints = timePoints;
         }
 
         private void CalculateMaxPoints()
@@ -122,6 +129,11 @@ namespace TimeSeriesExtension
         private float FindMiddle(float max, float min)
         {
             return (max + min) / 2;
+        }
+
+        public bool isTimeGraph()
+        {
+            return TimePoints != null;
         }
     }
 }
