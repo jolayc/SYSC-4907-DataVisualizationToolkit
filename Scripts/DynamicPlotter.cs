@@ -28,6 +28,7 @@ namespace TimeSeriesExtension
         public GameObject ScaleHandle;
         public float PlotScale;
         private GameObject TimeText;
+        private Vector3 GraphRadius;
 
         // from Graph
         private float GraphXMax, GraphXMid, GraphXMin;
@@ -43,19 +44,17 @@ namespace TimeSeriesExtension
 
         private void Awake()
         {
+            // Disable object until Init() is called
             enabled = false;
         }
 
         // Update is called once per frame
         void Update()
         {
-            //if (Time.frameCount % 2 == 0)
-            //{
-                for (int i = 0; i < Points.Count; i++)
-                {
-                    UpdatePoint(Points[i], i);
-                }
-          //  }
+            for (int i = 0; i < Points.Count; i++)
+            {
+                UpdatePoint(Points[i], i);
+            }
         }
 
         public void Init()
@@ -68,14 +67,13 @@ namespace TimeSeriesExtension
             SetMaxMinMid();
             DrawPlot();
             DrawTitle();
+            DrawXAxisLabel();
+            DrawYAxisLabel();
+            DrawZAxisLabel();
             DrawTime();
 
+            // Graph is initialized so enable it so Update() can be called
             enabled = true;
-        }
-
-        private void DebugPlot()
-        {
-            // TO-DO
         }
 
         private void SetMaxMinMid()
@@ -106,6 +104,8 @@ namespace TimeSeriesExtension
             PointHolder.GetComponent<BoundingBox>().WireframeMaterial.color = Color.white;
             PointHolder.AddComponent<ManipulationHandler>();
 
+            GraphRadius = PointHolder.GetComponent<BoxCollider>().size / 2;
+            
             for (int i = 0; i < numberOfPoints; i++)
             {
                 Transform current_point = Instantiate(PointPrefab);
@@ -137,6 +137,8 @@ namespace TimeSeriesExtension
                 updated_position.y = NormalizeToRange(min_range.y, max_range.y, pointFromGraph.YPoints[currentIndex], GraphYMax, GraphYMin);
                 updated_position.z = NormalizeToRange(min_range.z, max_range.z, pointFromGraph.ZPoints[currentIndex], GraphZMax, GraphZMin);
 
+                Debug.Log("pos:" + updated_position);
+
                 point.localPosition = updated_position;
 
                 if (Graph.isTimeGraph())
@@ -157,39 +159,98 @@ namespace TimeSeriesExtension
             List<string> timePoints = Graph.TimePoints;
             TimeText.GetComponent<TextMesh>().text = "Time: " + timePoints[index];
         }
-            
+
         private void DrawTitle()
         {
-            Vector3 graphExtent = PointHolder.GetComponent<BoxCollider>().size / 2;
-
-            GameObject plotTitle = Instantiate(Text, new Vector3(
-                                               NormalizeToRange(graphExtent.x * -1, graphExtent.x, GraphXMid, GraphXMax, GraphXMin),
-                                               NormalizeToRange(graphExtent.y * -1, graphExtent.y, GraphYMid, GraphYMax, GraphYMin),
-                                               NormalizeToRange(graphExtent.z * -1, graphExtent.z, GraphZMid, GraphZMax, GraphZMin)),
-                                               Quaternion.identity);
-
+            GameObject plotTitle = Instantiate(Text, Vector3.zero, Quaternion.identity);
             // Add title text
             plotTitle.transform.SetParent(PointHolder.transform);
             plotTitle.GetComponent<TextMesh>().text = PlotTitle;
             plotTitle.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            plotTitle.transform.position = plotTitle.transform.position + new Vector3(0, graphExtent.y, 0);
+            plotTitle.GetComponent<TextMesh>().anchor = TextAnchor.LowerCenter;
+            plotTitle.transform.position = new Vector3(0, GraphRadius.y, -GraphRadius.x);
         }
 
         private void DrawTime()
         {
-            Vector3 graphExtent = PointHolder.GetComponent<BoxCollider>().size / 2;
-
-            TimeText = Instantiate(Text, new Vector3(
-                                               NormalizeToRange(graphExtent.x * -1, graphExtent.x, GraphXMid, GraphXMax, GraphXMin),
-                                               NormalizeToRange(graphExtent.y * -1, graphExtent.y, GraphYMid, GraphYMax, GraphYMin),
-                                               NormalizeToRange(graphExtent.z * -1, graphExtent.z, GraphZMid, GraphZMax, GraphZMin)),
-                                               Quaternion.identity);
+            TimeText = Instantiate(Text, Vector3.zero, Quaternion.identity);
 
             // Add time text
             TimeText.transform.SetParent(PointHolder.transform);
             TimeText.GetComponent<TextMesh>().text = "";
             TimeText.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            TimeText.transform.position = TimeText.transform.position - new Vector3(0, graphExtent.y, 0);
+            TimeText.GetComponent<TextMesh>().anchor = TextAnchor.UpperLeft;
+            TimeText.transform.position = new Vector3(0, -GraphRadius.y, -GraphRadius.z);
+        }
+
+        private void DrawXAxisLabel()
+        {
+            GameObject xlabel;
+            xlabel = Instantiate(Text, Vector3.zero, Quaternion.Euler(90, 0, 0));
+
+            // Add label text
+            xlabel.transform.SetParent(PointHolder.transform);
+            string text;
+
+            if (XAxisName != null)
+            {
+                text = XAxisName;
+            }
+            else
+            {
+                text = "x-axis";
+            }
+            xlabel.GetComponent<TextMesh>().text = text;
+            xlabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            xlabel.transform.position = new Vector3(-GraphRadius.x, -GraphRadius.y, -GraphRadius.z);
+        }
+
+        private void DrawYAxisLabel()
+        {
+            GameObject ylabel;
+            ylabel = Instantiate(Text, Vector3.zero, Quaternion.Euler(0, 0, 90));
+
+            // Add label text
+            ylabel.transform.SetParent(PointHolder.transform);
+            string text;
+
+            if (YAxisName != null)
+            {
+                text = YAxisName;
+            }
+            else
+            {
+                text = "y-axis";
+            }
+            ylabel.GetComponent<TextMesh>().text = text;
+            ylabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            ylabel.GetComponent<TextMesh>().anchor = TextAnchor.LowerLeft; // Set anchor to lower left corner to help with setting position
+            ylabel.transform.position = new Vector3(-GraphRadius.x, -GraphRadius.y, -GraphRadius.z);
+        }
+
+        private void DrawZAxisLabel()
+        {
+            Vector3 graphExtent = PointHolder.GetComponent<BoxCollider>().size / 2;
+
+            GameObject zlabel;
+
+            zlabel = Instantiate(Text, Vector3.zero, Quaternion.Euler(90, 0, 90));
+
+            // Add label text
+            zlabel.transform.SetParent(PointHolder.transform);
+            string text;
+            if (ZAxisName != null)
+            {
+                text = ZAxisName;
+            }
+            else
+            {
+                text = "z-axis";
+            }
+            zlabel.GetComponent<TextMesh>().text = text;
+            zlabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            zlabel.GetComponent<TextMesh>().anchor = TextAnchor.LowerLeft;
+            zlabel.transform.position = new Vector3(-GraphRadius.x, -GraphRadius.y, -GraphRadius.z);
         }
 
         private float Normalize(float value, float max, float min)
@@ -205,7 +266,7 @@ namespace TimeSeriesExtension
             }
         }
 
-        private float NormalizeToRange(float a, float b, float value, float min, float max)
+        private float NormalizeToRange(float a, float b, float value, float max, float min)
         {
             // Range [a, b]
             float normalized_value = Normalize(value, max, min);
