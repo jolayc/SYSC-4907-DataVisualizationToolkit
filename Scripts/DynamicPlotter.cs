@@ -137,7 +137,7 @@ namespace TimeSeriesExtension
                 updated_position.y = NormalizeToRange(min_range.y, max_range.y, pointFromGraph.YPoints[currentIndex], GraphYMax, GraphYMin);
                 updated_position.z = NormalizeToRange(min_range.z, max_range.z, pointFromGraph.ZPoints[currentIndex], GraphZMax, GraphZMin);
 
-                //Debug.Log("pos:" + updated_position);
+                Debug.Log(updated_position.ToString("F4"));
 
                 point.localPosition = updated_position;
 
