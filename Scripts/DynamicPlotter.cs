@@ -62,9 +62,9 @@ namespace TimeSeriesExtension
             PlotScale = 1;
             Points = new List<Transform>();
 
-            Debug.Log(Graph);
-
             SetMaxMinMid();
+
+            // Drawing graph components
             DrawPlot();
             DrawTitle();
             DrawXAxisLabel();
@@ -126,8 +126,8 @@ namespace TimeSeriesExtension
             int currentIndex = pointFromGraph.currentPointIndex;
 
             // Get bounds of BoxCollider to help with normalizing plot point
-            Vector3 max_range = PointHolder.GetComponent<BoxCollider>().size / 2;
-            Vector3 min_range = PointHolder.GetComponent<BoxCollider>().size / 2 * -1;
+            Vector3 max_range = GraphRadius;
+            Vector3 min_range = -GraphRadius;
 
             //Debug.Log("max range: " + max_range + " min range: " + min_range);
 
@@ -137,7 +137,7 @@ namespace TimeSeriesExtension
                 updated_position.y = NormalizeToRange(min_range.y, max_range.y, pointFromGraph.YPoints[currentIndex], GraphYMax, GraphYMin);
                 updated_position.z = NormalizeToRange(min_range.z, max_range.z, pointFromGraph.ZPoints[currentIndex], GraphZMax, GraphZMin);
 
-                Debug.Log("pos:" + updated_position);
+                //Debug.Log("pos:" + updated_position);
 
                 point.localPosition = updated_position;
 
@@ -230,8 +230,6 @@ namespace TimeSeriesExtension
 
         private void DrawZAxisLabel()
         {
-            Vector3 graphExtent = PointHolder.GetComponent<BoxCollider>().size / 2;
-
             GameObject zlabel;
 
             zlabel = Instantiate(Text, Vector3.zero, Quaternion.Euler(90, 0, 90));
@@ -270,17 +268,8 @@ namespace TimeSeriesExtension
         {
             // Range [a, b]
             float normalized_value = Normalize(value, max, min);
-            return ((b - a) * normalized_value) + a;
-        }
-
-        //private void NormalizeToRange(float a, float b, float normalized_value)
-        //{
-        //    return ((b - a) * normalized_value) + a;
-        //}
-
-        private float GetMiddle(float max, float min)
-        {
-            return (max + min) / 2;
+            float result = ((b - a) * normalized_value) + a;
+            return result;
         }
     }
 }
