@@ -21,10 +21,14 @@ namespace TimeSeriesExtension
 
         private void Awake()
         {
-            TimeSeriesGraph sineGraph = CreateSineGraph();
+            //TimeSeriesGraph sineGraph = CreateSineGraph();
             TimeSeriesGraph droneGraph = CreateDroneGraph();
 
-            DynamicPlotter sinePlotter = GetPlotter(sineGraph, "Sine Graph");
+            Debug.Log(droneGraph.LogMax());
+            Debug.Log(droneGraph.LogMid());
+            Debug.Log(droneGraph.LogMin());
+
+            //DynamicPlotter sinePlotter = GetPlotter(sineGraph, "Sine Graph");
             DynamicPlotter dronePlotter = GetPlotter(droneGraph, "Drone Graph");
         }
 
@@ -45,6 +49,7 @@ namespace TimeSeriesExtension
             plotter.PointHolder = plot;
 
             Transform dataPoint = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform;
+            //dataPoint.gameObject.AddComponent<TrailRenderer>();
             plotter.PointPrefab = dataPoint;
             Destroy(dataPoint.gameObject);
 
@@ -55,6 +60,10 @@ namespace TimeSeriesExtension
             plotter.Text = text;
 
             plotter.PlotTitle = name;
+
+            plotter.XAxisName = "X-Axis";
+            plotter.YAxisName = "Y-Axis";
+            plotter.ZAxisName = "Z-Axis";
 
             plotter.Init();
 
@@ -97,10 +106,10 @@ namespace TimeSeriesExtension
             string droneString = DroneData.ToString();
             DataParser parser = new DataParser(droneString);
 
-            List<float> x_values = parser.GetListFromColumn(3); //long
-            List<float> y_values = parser.GetListFromColumn(2); //lat
-            List<float> z_values = parser.GetListFromColumn(4); //alt
-            List<string> time_values = parser.GetTimePoints(1); //time
+            List<float> x_values = parser.GetListFromColumn(4); // lat 
+            List<float> y_values = parser.GetListFromColumn(2); // alt
+            List<float> z_values = parser.GetListFromColumn(3); // long
+            List<string> time_values = parser.GetTimePoints(1); // time
 
             PlotPoint new_point = new PlotPoint(x_values, y_values, z_values);
             graph.AddPlotPoint(new_point);
