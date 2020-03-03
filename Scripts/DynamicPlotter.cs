@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Microsoft.MixedReality.Toolkit.UI;
+using TMPro;
 
 namespace TimeSeriesExtension
 {
@@ -34,6 +35,8 @@ namespace TimeSeriesExtension
         private float GraphXMax, GraphXMid, GraphXMin;
         private float GraphYMax, GraphYMid, GraphYMin;
         private float GraphZMax, GraphZMid, GraphZMin;
+
+        //private int PlotScale = 10;
 
         // Start is called before the first frame update
         void Start()
@@ -112,7 +115,7 @@ namespace TimeSeriesExtension
                 current_point.GetComponent<Renderer>().material.color = Random.ColorHSV(0.0f, 1.0f);
                 current_point.SetParent(PointHolder.GetComponent<BoxCollider>().transform);
                 current_point.localPosition = PointHolder.GetComponent<BoxCollider>().center;
-                current_point.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                current_point.localScale = new Vector3(0.03f, 0.03f, 0.03f);
 
                 Points.Add(current_point);
             }
@@ -137,7 +140,7 @@ namespace TimeSeriesExtension
                 updated_position.y = NormalizeToRange(min_range.y, max_range.y, pointFromGraph.YPoints[currentIndex], GraphYMax, GraphYMin);
                 updated_position.z = NormalizeToRange(min_range.z, max_range.z, pointFromGraph.ZPoints[currentIndex], GraphZMax, GraphZMin);
 
-                Debug.Log(updated_position.ToString("F4"));
+                //Debug.Log(updated_position.ToString("F4"));
 
                 point.localPosition = updated_position;
 
@@ -202,7 +205,8 @@ namespace TimeSeriesExtension
             }
             xlabel.GetComponent<TextMesh>().text = text;
             xlabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            xlabel.transform.position = new Vector3(-GraphRadius.x, -GraphRadius.y, -GraphRadius.z);
+            xlabel.GetComponent<TextMesh>().anchor = TextAnchor.LowerCenter;
+            xlabel.transform.position = new Vector3(0, -GraphRadius.y, -GraphRadius.z);
         }
 
         private void DrawYAxisLabel()
@@ -224,15 +228,15 @@ namespace TimeSeriesExtension
             }
             ylabel.GetComponent<TextMesh>().text = text;
             ylabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            ylabel.GetComponent<TextMesh>().anchor = TextAnchor.LowerLeft; // Set anchor to lower left corner to help with setting position
-            ylabel.transform.position = new Vector3(-GraphRadius.x, -GraphRadius.y, -GraphRadius.z);
+            ylabel.GetComponent<TextMesh>().anchor = TextAnchor.UpperCenter;
+            ylabel.transform.position = new Vector3(-GraphRadius.x, 0, GraphRadius.z);
         }
 
         private void DrawZAxisLabel()
         {
             GameObject zlabel;
 
-            zlabel = Instantiate(Text, Vector3.zero, Quaternion.Euler(90, 0, 90));
+            zlabel = Instantiate(Text, Vector3.zero, Quaternion.Euler(90, 90, 0));
 
             // Add label text
             zlabel.transform.SetParent(PointHolder.transform);
@@ -247,8 +251,8 @@ namespace TimeSeriesExtension
             }
             zlabel.GetComponent<TextMesh>().text = text;
             zlabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            zlabel.GetComponent<TextMesh>().anchor = TextAnchor.LowerLeft;
-            zlabel.transform.position = new Vector3(-GraphRadius.x, -GraphRadius.y, -GraphRadius.z);
+            zlabel.GetComponent<TextMesh>().anchor = TextAnchor.LowerCenter;
+            zlabel.transform.position = new Vector3(-GraphRadius.x, -GraphRadius.y, 0);
         }
 
         private float Normalize(float value, float max, float min)
