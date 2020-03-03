@@ -36,9 +36,9 @@ public class PlotPoint
 
     private void CalculateMaxPoints()
     {
-        XMax = XPoints.Select(System.Math.Abs).Max();
-        YMax = YPoints.Select(System.Math.Abs).Max();
-        ZMax = ZPoints.Select(System.Math.Abs).Max();
+        XMax = XPoints.Max();
+        YMax = YPoints.Max();
+        ZMax = ZPoints.Max();
     }
 
     private void CalculateMinPoints()
